@@ -236,12 +236,21 @@ endfunction
 "
 " If compile_commands.json cannot be found, two empty strings will be
 " returned.
-function! ale#c#FindCompileCommands(buffer) abort
+function! s:FindCompileCommands(buffer, allow_txt) abort
     " Look above the current source file to find compile_commands.json
     let l:json_file = ale#path#FindNearestFile(a:buffer, 'compile_commands.json')
 
     if !empty(l:json_file)
         return [fnamemodify(l:json_file, ':h'), l:json_file]
+    endif
+
+    if a:allow_txt
+        " Look above the current source file to find compile_flags.txt
+        let l:txt_file = ale#path#FindNearestFile(a:buffer, 'compile_flags.txt')
+
+        if !empty(l:txt_file)
+            return [fnamemodify(l:txt_file, ':h'), l:txt_file]
+        endif
     endif
 
     " Search in build directories if we can't find it in the project.
@@ -257,6 +266,14 @@ function! ale#c#FindCompileCommands(buffer) abort
     endfor
 
     return ['', '']
+endfunction
+
+function! ale#c#FindCompileCommands(buffer) abort
+    return s:FindCompileCommands(a:buffer, 1)
+endfunction
+
+function! ale#c#FindCompileCommandsJsonOnly(buffer) abort
+    return s:FindCompileCommands(a:buffer, 0)
 endfunction
 
 " Find the project root for C/C++ projects.
