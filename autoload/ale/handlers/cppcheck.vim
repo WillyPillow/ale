@@ -73,7 +73,7 @@ function! ale#handlers#cppcheck#HandleCppCheckFormat(buffer, lines) abort
     let l:output = []
 
     for l:match in ale#util#GetMatches(a:lines, l:pattern)
-        if ale#path#IsBufferPath(a:buffer, l:match[1])
+        if ale#path#IsBufferPath(a:buffer, l:match[1]) && l:match[7] !=# 'unmatchedSuppression'
             call add(l:output, {
             \   'lnum':     str2nr(l:match[2]),
             \   'col':      match(l:match[3],'{column}') >= 0 ? 1 : str2nr(l:match[3]),
